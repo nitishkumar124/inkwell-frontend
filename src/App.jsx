@@ -1,29 +1,32 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Feed from "./pages/Feed";
-// import CreatePost from "./pages/CreatePost";
 import PostDetail from "./pages/PostDetail";
-// import AdminPanel from "./pages/AdminPanel";
-// import { isAuthenticated, getRole } from "./auth/auth";
 import Register from "./pages/Register";
-
-// const RequireAuth = ({ children }) =>
-  // isAuthenticated() ? children : <Navigate to="/" />;
-
-// const RequireRole = ({ role, children }) =>
-  // getRole() === role ? children : <Navigate to="/feed" />;
+import CreatePost from "./pages/CreatePost";
+import Drafts from "./pages/Drafts";
+import Moderation from "./pages/Moderation";
+import AdminPanel from "./pages/AdminPanel";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-          <Route path="/" element={<Login />} />
+        <Route path="/" element={<Login />} />
 
-          <Route path="/register" element={<Register />} />
+        <Route path="/register" element={<Register />} />
 
-          <Route path="/feed" element={<Feed />} />
+        <Route path="/feed" element={<Feed />} />
 
-          <Route path="/posts/:id" element={<PostDetail />} />
+        <Route path="/posts/:id" element={<PostDetail />} />
+
+        <Route path="/create" element={<CreatePost />} />
+
+        <Route path="/drafts" element={<Drafts />} />
+
+        <Route path="/moderation" element={<Moderation />} />
+
+        <Route path="/admin" element={<AdminPanel />} />
       </Routes>
     </BrowserRouter>
   );

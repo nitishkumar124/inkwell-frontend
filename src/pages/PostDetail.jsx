@@ -26,6 +26,7 @@ export default function PostDetail() {
 
   // FETCH POST
   const fetchPost = async () => {
+
     try {
 
       const res = await API.get(`/posts/${id}`);
@@ -33,12 +34,14 @@ export default function PostDetail() {
       setPost(res.data.data);
 
     } catch (err) {
+
       console.error(err);
     }
   };
 
   // FETCH COMMENTS
   const fetchComments = async () => {
+
     try {
 
       const res = await API.get(`/comments/post/${id}`);
@@ -46,6 +49,7 @@ export default function PostDetail() {
       setComments(res.data.data);
 
     } catch (err) {
+
       console.error(err);
     }
   };
@@ -54,7 +58,9 @@ export default function PostDetail() {
   const handleLike = async () => {
 
     if (!isAuthenticated()) {
+
       navigate("/");
+
       return;
     }
 
@@ -65,6 +71,7 @@ export default function PostDetail() {
       fetchPost();
 
     } catch (err) {
+
       console.error(err);
     }
   };
@@ -86,12 +93,14 @@ export default function PostDetail() {
       fetchComments();
 
     } catch (err) {
+
       console.error(err);
     }
   };
 
   // APPROVE
   const approveComment = async (commentId) => {
+
     try {
 
       await API.put(`/comments/${commentId}/approve`);
@@ -99,12 +108,14 @@ export default function PostDetail() {
       fetchComments();
 
     } catch (err) {
+
       console.error(err);
     }
   };
 
   // REJECT
   const rejectComment = async (commentId) => {
+
     try {
 
       await API.put(`/comments/${commentId}/reject`);
@@ -112,6 +123,7 @@ export default function PostDetail() {
       fetchComments();
 
     } catch (err) {
+
       console.error(err);
     }
   };
@@ -125,7 +137,12 @@ export default function PostDetail() {
   }, []);
 
   if (!post) {
-    return <div>Loading...</div>;
+
+    return (
+      <div style={styles.loading}>
+        Loading...
+      </div>
+    );
   }
 
   return (
@@ -134,8 +151,8 @@ export default function PostDetail() {
 
       <div style={styles.page}>
 
-        {/* POST SECTION */}
-        <div style={styles.postContainer}>
+        {/* POST */}
+        <div style={styles.postWrapper}>
 
           {/* FEATURED */}
           {post.featured && (
@@ -146,46 +163,60 @@ export default function PostDetail() {
 
           {/* IMAGE */}
           {post.imageUrl && (
-            <img
-              src={`http://localhost:8082${post.imageUrl}`}
-              alt="post"
-              style={styles.image}
-            />
+            <div style={styles.imageWrapper}>
+
+              <img
+                src={`http://localhost:8082${post.imageUrl}`}
+                alt="post"
+                style={styles.image}
+              />
+
+              <div style={styles.imageOverlay} />
+
+            </div>
           )}
 
-          {/* TITLE */}
-          <h1 style={styles.title}>
-            {post.title}
-          </h1>
+          {/* CONTENT CARD */}
+          <div style={styles.postCard}>
 
-          {/* CONTENT */}
-          <p style={styles.content}>
-            {post.content}
-          </p>
+            <h1 style={styles.title}>
+              {post.title}
+            </h1>
 
-          {/* META */}
-          <div style={styles.meta}>
+            {/* META */}
+            <div style={styles.meta}>
 
-            <span>
-              👁 {post.viewCount || 0}
-            </span>
+              <div style={styles.metaPill}>
+                👁 {post.viewCount || 0} views
+              </div>
 
-            <span
-              style={styles.like}
-              onClick={handleLike}
-            >
-              ❤️ {post.likeCount || 0}
-            </span>
+              <div
+                style={styles.likePill}
+                onClick={handleLike}
+              >
+                ❤️ {post.likeCount || 0} likes
+              </div>
+
+            </div>
+
+            {/* CONTENT */}
+            <p style={styles.content}>
+              {post.content}
+            </p>
+
           </div>
         </div>
 
         {/* COMMENTS */}
         <div style={styles.commentsSection}>
 
-          <h2>Comments</h2>
+          <h2 style={styles.commentsHeading}>
+            Comments
+          </h2>
 
           {/* GUEST */}
           {!isAuthenticated() && (
+
             <p
               style={styles.loginText}
               onClick={() => navigate("/")}
@@ -194,17 +225,17 @@ export default function PostDetail() {
             </p>
           )}
 
-          {/* READER / AUTHOR */}
+          {/* COMMENT BOX */}
           {(role === "READER" || role === "AUTHOR") && (
 
-            <div style={styles.commentInputContainer}>
+            <div style={styles.commentBox}>
 
               <textarea
                 value={commentText}
                 onChange={(e) =>
                   setCommentText(e.target.value)
                 }
-                placeholder="Write your comment..."
+                placeholder="Write your thoughts..."
                 style={styles.textarea}
               />
 
@@ -214,53 +245,60 @@ export default function PostDetail() {
               >
                 Add Comment
               </button>
+
             </div>
           )}
 
-          {/* COMMENTS LIST */}
-          {comments.map((c) => (
+          {/* COMMENTS */}
+          <div style={styles.commentsGrid}>
 
-            <div key={c.id} style={styles.commentCard}>
+            {comments.map((c) => (
 
-              {/* STATUS */}
-              {c.status === "PENDING" && (
-                <div style={styles.pending}>
-                  ⏳ Pending Approval
-                </div>
-              )}
+              <div
+                key={c.id}
+                style={styles.commentCard}
+              >
 
-              <p style={styles.commentText}>
-                {c.content}
-              </p>
+                {/* STATUS */}
+                {c.status === "PENDING" && (
+                  <div style={styles.pending}>
+                    ⏳ Pending Approval
+                  </div>
+                )}
 
-              {/* MODERATION */}
-              {(role === "ADMIN" || role === "AUTHOR") &&
-                c.status === "PENDING" && (
+                <p style={styles.commentText}>
+                  {c.content}
+                </p>
 
-                <div style={styles.moderation}>
+                {/* MODERATION */}
+                {(role === "ADMIN" || role === "AUTHOR")
+                  && c.status === "PENDING" && (
 
-                  <button
-                    style={styles.approve}
-                    onClick={() =>
-                      approveComment(c.id)
-                    }
-                  >
-                    Approve
-                  </button>
+                  <div style={styles.moderation}>
 
-                  <button
-                    style={styles.reject}
-                    onClick={() =>
-                      rejectComment(c.id)
-                    }
-                  >
-                    Reject
-                  </button>
+                    <button
+                      style={styles.approve}
+                      onClick={() =>
+                        approveComment(c.id)
+                      }
+                    >
+                      Approve
+                    </button>
 
-                </div>
-              )}
-            </div>
-          ))}
+                    <button
+                      style={styles.reject}
+                      onClick={() =>
+                        rejectComment(c.id)
+                      }
+                    >
+                      Reject
+                    </button>
+
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </>
@@ -269,14 +307,25 @@ export default function PostDetail() {
 
 const styles = {
 
-  page: {
-    background: "#0f172a",
+  loading: {
     minHeight: "100vh",
+    background: "#020617",
     color: "white",
-    padding: "30px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: "24px",
   },
 
-  postContainer: {
+  page: {
+    minHeight: "100vh",
+    background:
+      "linear-gradient(to bottom, #020617, #0f172a)",
+    color: "white",
+    padding: "40px",
+  },
+
+  postWrapper: {
     maxWidth: "900px",
     margin: "0 auto",
   },
@@ -285,116 +334,189 @@ const styles = {
     background: "#facc15",
     color: "#000",
     display: "inline-block",
-    padding: "6px 14px",
-    borderRadius: "20px",
-    marginBottom: "15px",
+    padding: "8px 18px",
+    borderRadius: "999px",
+    marginBottom: "20px",
     fontWeight: "bold",
+    boxShadow:
+      "0 4px 12px rgba(250,204,21,0.3)",
+  },
+
+  imageWrapper: {
+    position: "relative",
+    overflow: "hidden",
+    borderRadius: "22px",
+    marginBottom: "30px",
+    boxShadow:
+      "0 15px 40px rgba(0,0,0,0.35)",
   },
 
   image: {
     width: "100%",
-    maxHeight: "450px",
+    height: "380px",
     objectFit: "cover",
-    borderRadius: "12px",
+    display: "block",
+  },
+
+  imageOverlay: {
+    position: "absolute",
+    inset: 0,
+    background:
+      "linear-gradient(to top, rgba(0,0,0,0.4), transparent)",
+  },
+
+  postCard: {
+    background: "#111827",
+    padding: "40px",
+    borderRadius: "24px",
+    border:
+      "1px solid rgba(255,255,255,0.05)",
+    boxShadow:
+      "0 10px 30px rgba(0,0,0,0.25)",
   },
 
   title: {
-    marginTop: "25px",
-    fontSize: "40px",
-  },
-
-  content: {
-    marginTop: "20px",
-    lineHeight: "1.9",
-    color: "#cbd5e1",
-    fontSize: "18px",
+    fontSize: "54px",
+    fontWeight: "bold",
+    marginBottom: "25px",
+    lineHeight: "1.1",
+    letterSpacing: "-1px",
   },
 
   meta: {
     display: "flex",
-    gap: "25px",
-    marginTop: "20px",
-    color: "#94a3b8",
-    fontSize: "18px",
+    gap: "16px",
+    marginBottom: "35px",
+    flexWrap: "wrap",
   },
 
-  like: {
-    cursor: "pointer",
+  metaPill: {
+    background: "#1e293b",
+    padding: "10px 16px",
+    borderRadius: "999px",
+    color: "#94a3b8",
+    fontSize: "14px",
+  },
+
+  likePill: {
+    background: "#1e293b",
+    padding: "10px 16px",
+    borderRadius: "999px",
     color: "#f43f5e",
+    fontSize: "14px",
+    cursor: "pointer",
+    transition: "0.2s",
+  },
+
+  content: {
+    color: "#cbd5e1",
+    lineHeight: "2",
+    fontSize: "18px",
+    whiteSpace: "pre-wrap",
   },
 
   commentsSection: {
     maxWidth: "900px",
-    margin: "50px auto 0px auto",
+    margin: "60px auto 0 auto",
+  },
+
+  commentsHeading: {
+    fontSize: "34px",
+    marginBottom: "25px",
   },
 
   loginText: {
     color: "#38bdf8",
     cursor: "pointer",
-    marginTop: "15px",
+    marginBottom: "25px",
   },
 
-  commentInputContainer: {
-    marginTop: "20px",
+  commentBox: {
+    background: "#111827",
+    padding: "25px",
+    borderRadius: "20px",
+    marginBottom: "40px",
   },
 
   textarea: {
     width: "100%",
-    minHeight: "100px",
-    borderRadius: "10px",
-    padding: "15px",
-    border: "none",
-    outline: "none",
+    minHeight: "120px",
+    background: "#0f172a",
+    color: "white",
+    border: "1px solid #334155",
+    borderRadius: "14px",
+    padding: "18px",
     resize: "vertical",
+    outline: "none",
+    fontSize: "15px",
+    boxSizing: "border-box",
   },
 
   commentBtn: {
-    marginTop: "10px",
-    padding: "10px 20px",
-    background: "#22c55e",
+    marginTop: "16px",
+    padding: "12px 24px",
+    background: "#38bdf8",
     border: "none",
-    borderRadius: "8px",
+    borderRadius: "12px",
     color: "white",
     cursor: "pointer",
+    fontSize: "15px",
+    fontWeight: "bold",
+  },
+
+  commentsGrid: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
   },
 
   commentCard: {
-    background: "#1e293b",
-    padding: "15px",
-    borderRadius: "10px",
-    marginTop: "20px",
+    background: "#111827",
+    padding: "24px",
+    borderRadius: "20px",
+    border:
+      "1px solid rgba(255,255,255,0.05)",
   },
 
   pending: {
+    display: "inline-block",
+    marginBottom: "14px",
     color: "#facc15",
-    marginBottom: "10px",
+    background: "rgba(250,204,21,0.12)",
+    padding: "6px 12px",
+    borderRadius: "999px",
+    fontSize: "13px",
   },
 
   commentText: {
-    lineHeight: "1.6",
+    color: "#cbd5e1",
+    lineHeight: "1.8",
+    fontSize: "15px",
   },
 
   moderation: {
-    marginTop: "15px",
+    marginTop: "20px",
     display: "flex",
-    gap: "10px",
+    gap: "12px",
   },
 
   approve: {
     background: "#22c55e",
     border: "none",
-    padding: "8px 14px",
-    borderRadius: "6px",
+    padding: "10px 18px",
+    borderRadius: "10px",
     color: "white",
     cursor: "pointer",
+    fontWeight: "bold",
   },
 
   reject: {
     background: "#ef4444",
     border: "none",
-    padding: "8px 14px",
-    borderRadius: "6px",
+    padding: "10px 18px",
+    borderRadius: "10px",
     color: "white",
     cursor: "pointer",
+    fontWeight: "bold",
   },
 };

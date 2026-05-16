@@ -11,11 +11,12 @@ export default function Feed() {
   const navigate = useNavigate();
 
   const fetchPosts = async () => {
+
     try {
 
       const res = await API.get("/posts");
 
-      // 🔥 featured posts first
+      // featured posts first
       const sorted = [...res.data.data].sort(
         (a, b) => b.featured - a.featured
       );
@@ -23,12 +24,15 @@ export default function Feed() {
       setPosts(sorted);
 
     } catch (err) {
+
       console.error(err);
     }
   };
 
   useEffect(() => {
+
     fetchPosts();
+
   }, []);
 
   return (
@@ -48,41 +52,74 @@ export default function Feed() {
             <div
               key={p.id}
               style={styles.card}
-              onClick={() => navigate(`/posts/${p.id}`)}
+              onClick={() =>
+                navigate(`/posts/${p.id}`)
+              }
+
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform =
+                  "translateY(-8px)";
+
+                e.currentTarget.style.boxShadow =
+                  "0 18px 40px rgba(0,0,0,0.4)";
+              }}
+
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform =
+                  "translateY(0px)";
+
+                e.currentTarget.style.boxShadow =
+                  "0 10px 25px rgba(0,0,0,0.25)";
+              }}
             >
 
-              {/* FEATURED */}
-              {p.featured && (
-                <div style={styles.featured}>
-                  ⭐ Featured
-                </div>
-              )}
-
               {/* IMAGE */}
-              {p.imageUrl && (
-                <img
-                  src={`http://localhost:8082${p.imageUrl}`}
-                  alt="post"
-                  style={styles.image}
-                />
-              )}
+              <div style={styles.imageWrapper}>
 
-              {/* TITLE */}
-              <h2 style={styles.title}>
-                {p.title}
-              </h2>
+                {p.featured && (
+                  <div style={styles.featured}>
+                    ⭐ Featured
+                  </div>
+                )}
 
-              {/* PREVIEW */}
-              <p style={styles.preview}>
-                {p.content.length > 120
-                  ? p.content.substring(0, 120) + "..."
-                  : p.content}
-              </p>
+                {p.imageUrl && (
+                  <>
+                    <img
+                      src={`http://localhost:8082${p.imageUrl}`}
+                      alt="post"
+                      style={styles.image}
+                    />
 
-              {/* META */}
-              <div style={styles.meta}>
-                <span>👁 {p.viewCount || 0}</span>
-                <span>❤️ {p.likeCount || 0}</span>
+                    <div style={styles.imageOverlay} />
+                  </>
+                )}
+              </div>
+
+              {/* CONTENT */}
+              <div style={styles.content}>
+
+                <h2 style={styles.title}>
+                  {p.title}
+                </h2>
+
+                <p style={styles.preview}>
+                  {p.content.length > 120
+                    ? p.content.substring(0, 120) + "..."
+                    : p.content}
+                </p>
+
+                {/* META */}
+                <div style={styles.meta}>
+
+                  <div style={styles.stat}>
+                    👁 {p.viewCount || 0}
+                  </div>
+
+                  <div style={styles.stat}>
+                    ❤️ {p.likeCount || 0}
+                  </div>
+
+                </div>
               </div>
 
             </div>
@@ -96,65 +133,110 @@ export default function Feed() {
 const styles = {
 
   container: {
-    background: "#0f172a",
     minHeight: "100vh",
-    padding: "30px",
+    padding: "40px",
+    background:
+      "linear-gradient(to bottom, #020617, #0f172a)",
     color: "white",
   },
 
   heading: {
-    marginBottom: "30px",
-    fontSize: "32px",
+    fontSize: "48px",
+    fontWeight: "bold",
+    marginBottom: "40px",
+    letterSpacing: "-1px",
   },
 
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-    gap: "25px",
+    gridTemplateColumns:
+      "repeat(auto-fill, minmax(340px, 1fr))",
+    gap: "30px",
   },
 
   card: {
     background: "#1e293b",
-    borderRadius: "14px",
+    borderRadius: "20px",
     overflow: "hidden",
     cursor: "pointer",
-    transition: "0.25s",
-    boxShadow: "0 6px 14px rgba(0,0,0,0.25)",
+    transition: "all 0.3s ease",
+    boxShadow:
+      "0 10px 25px rgba(0,0,0,0.25)",
+    position: "relative",
+    border:
+      "1px solid rgba(255,255,255,0.04)",
+  },
+
+  imageWrapper: {
+    overflow: "hidden",
+    position: "relative",
   },
 
   image: {
     width: "100%",
-    height: "220px",
+    height: "240px",
     objectFit: "cover",
+    transition: "transform 0.4s ease",
+    display: "block",
+  },
+
+  imageOverlay: {
+    position: "absolute",
+    inset: 0,
+    background:
+      "linear-gradient(to top, rgba(0,0,0,0.4), transparent)",
+  },
+
+  featured: {
+    position: "absolute",
+    top: "14px",
+    left: "14px",
+    background: "#facc15",
+    color: "#000",
+    padding: "8px 14px",
+    borderRadius: "999px",
+    fontSize: "12px",
+    fontWeight: "bold",
+    zIndex: 2,
+    boxShadow:
+      "0 4px 12px rgba(250,204,21,0.4)",
+  },
+
+  content: {
+    padding: "22px",
   },
 
   title: {
-    padding: "15px 15px 0px 15px",
-    fontSize: "22px",
+    fontSize: "28px",
+    fontWeight: "bold",
+    marginBottom: "12px",
+    lineHeight: "1.2",
   },
 
   preview: {
-    padding: "10px 15px",
     color: "#cbd5e1",
-    lineHeight: "1.5",
+    lineHeight: "1.7",
+    fontSize: "15px",
+    marginBottom: "24px",
   },
 
   meta: {
     display: "flex",
     justifyContent: "space-between",
-    padding: "15px",
-    color: "#94a3b8",
-    borderTop: "1px solid #334155",
+    alignItems: "center",
+    borderTop:
+      "1px solid rgba(255,255,255,0.06)",
+    paddingTop: "18px",
   },
 
-  featured: {
-    position: "absolute",
-    margin: "12px",
-    background: "#facc15",
-    color: "#000",
-    padding: "6px 12px",
-    borderRadius: "20px",
-    fontSize: "13px",
-    fontWeight: "bold",
+  stat: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    color: "#94a3b8",
+    fontSize: "14px",
+    background: "#0f172a",
+    padding: "8px 12px",
+    borderRadius: "999px",
   },
 };
